@@ -1,20 +1,17 @@
+using FruitAPI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<FruitDb>(opt => opt.UseInMemoryDatabase("FruitList"));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddSwaggerGen(options => options.SwaggerDoc("v1", new OpenApiInfo
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Version = "v1",
-        Title = "Fruit API",
-        Description = "API for managing a list of fruit and their stock status.",
-    });
-});
+    Version = "v1",
+    Title = "Fruit API",
+    Description = "API for managing a list of fruit and their stock status.",
+}));
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -24,12 +21,12 @@ using (var scope = app.Services.CreateScope())
     dbContext.Database.EnsureCreated();
 }
 
- app.MapGet("/fruitlist",  async (FruitDb db) =>
+app.MapGet("/fruitlist", async (FruitDb db) =>
     await db.Fruits.ToListAsync())
-    .WithTags("Get all fruit"); 
+    .WithTags("Get all fruit");
 
 app.MapGet("/fruitlist/instock", async (FruitDb db) =>
-    await db.Fruits.Where(t => t.Instock).ToListAsync())
+    await db.Fruits.Where(t => t.InStock).ToListAsync())
     .WithTags("Get all fruit that is in stock");
 
 app.MapGet("/fruitlist/{id}", async (int id, FruitDb db) =>
@@ -55,7 +52,7 @@ app.MapPut("/fruitlist/{id}", async (int id, Fruit inputFruit, FruitDb db) =>
     if (fruit is null) return Results.NotFound();
 
     fruit.Name = inputFruit.Name;
-    fruit.Instock = inputFruit.Instock;
+    fruit.InStock = inputFruit.InStock;
 
     await db.SaveChangesAsync();
 
@@ -79,6 +76,5 @@ app.MapDelete("/fruitlist/{id}", async (int id, FruitDb db) =>
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
 
 app.Run();
