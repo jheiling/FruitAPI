@@ -9,8 +9,9 @@ public class FruitModel
     [Key]
     public int id { get; set; }
 
-    [Display(Name="Fruit Name")]
+    [Display(Name = "Fruit Name")]
     public string? name { get; set; }
-    [Display(Name ="Available?")]
+
+    [Display(Name = "Available?")]
     public bool instock { get; set; }
 }
